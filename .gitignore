@@ -1,0 +1,21 @@
+#Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+#Secrets
+.env
+.env.*
+
+#Node / frontend
+node_modules/
+dist/
+
+#Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
