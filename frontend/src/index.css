@@ -203,6 +203,20 @@ code {
   line-height: 1.5;
 }
 
+input[type="file"] {
+  padding: 0.7rem;
+  border: 1px dashed #40516b;
+  border-radius: 10px;
+  color: #b9c6d8;
+  background: #07101e;
+}
+
+.selected-file {
+  margin: 0;
+  color: #86e5ba;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 760px) {
   .page-shell {
     padding: 2.5rem 0;

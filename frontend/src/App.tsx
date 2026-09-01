@@ -24,9 +24,41 @@ const API_URL = "http://127.0.0.1:8010/api/scan";
 
 export default function App() {
   const [content, setContent] = useState(SAMPLE_TEXT);
+  const [fileName, setFileName] = useState("");
   const [result, setResult] = useState<ScanResponse | null>(null);
   const [error, setError] = useState("");
   const [isScanning, setIsScanning] = useState(false);
+  const [isReadingFile, setIsReadingFile] = useState(false);
+
+  async function handleFileChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = event.target.files?.[0];
+    setError("");
+    setResult(null);
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.name.toLowerCase().endsWith(".txt")) {
+      setError("SecureLens currently supports plain-text (.txt) files only.");
+      event.target.value = "";
+      return;
+    }
+
+    setIsReadingFile(true);
+
+    try {
+      const fileContent = await file.text();
+      setContent(fileContent);
+      setFileName(file.name);
+    } catch {
+      setError("SecureLens could not read this file.");
+    } finally {
+      setIsReadingFile(false);
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,7 +66,7 @@ export default function App() {
     setResult(null);
 
     if (!content.trim()) {
-      setError("Paste some text before starting a scan.");
+      setError("Paste some text or select a text file before starting a scan.");
       return;
     }
 
@@ -76,15 +108,36 @@ export default function App() {
 
       <section className="workspace">
         <form className="scan-form" onSubmit={handleSubmit}>
+          <label htmlFor="document-file">Upload a text file</label>
+          <input
+            id="document-file"
+            type="file"
+            accept=".txt,text/plain"
+            onChange={handleFileChange}
+          />
+
+          {fileName && (
+            <p className="selected-file">
+              Selected file: <strong>{fileName}</strong>
+            </p>
+          )}
+
           <label htmlFor="document-content">Content to review</label>
           <textarea
             id="document-content"
             value={content}
-            onChange={(event) => setContent(event.target.value)}
+            onChange={(event) => {
+              setContent(event.target.value);
+              setFileName("");
+            }}
             placeholder="Paste a document, environment configuration, or code snippet..."
           />
-          <button type="submit" disabled={isScanning}>
-            {isScanning ? "Scanning…" : "Run security scan"}
+          <button type="submit" disabled={isScanning || isReadingFile}>
+            {isReadingFile
+              ? "Reading file…"
+              : isScanning
+                ? "Scanning…"
+                : "Run security scan"}
           </button>
         </form>
 
@@ -101,7 +154,7 @@ export default function App() {
 
           {!result && !error && (
             <p className="message">
-              Run a scan to see prioritized security findings here.
+              Upload a text file or paste content, then run a scan.
             </p>
           )}
 
