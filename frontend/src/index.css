@@ -226,3 +226,44 @@ input[type="file"] {
     grid-template-columns: 1fr;
   }
 }
+
+.severity-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.8rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+}
+
+.summary-card strong {
+  font-size: 1.5rem;
+}
+
+.high-summary {
+  color: #ffb5b5;
+  background: rgba(255, 137, 137, 0.14);
+}
+
+.medium-summary {
+  color: #ffe0a3;
+  background: rgba(255, 203, 121, 0.14);
+}
+
+.total-summary {
+  color: #9debd4;
+  background: rgba(100, 217, 189, 0.14);
+}
+
+@media (max-width: 420px) {
+  .severity-summary {
+    grid-template-columns: 1fr;
+  }
+}

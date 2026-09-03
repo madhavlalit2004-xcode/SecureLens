@@ -94,8 +94,13 @@ export default function App() {
       setIsScanning(false);
     }
   }
+  const highCount =
+    result?.findings.filter((finding) => finding.severity === "high").length ?? 0;
 
-  return (
+  const mediumCount =
+    result?.findings.filter((finding) => finding.severity === "medium").length ?? 0;
+  
+    return (
     <main className="page-shell">
       <section className="hero">
         <p className="eyebrow">SECURITY REVIEW WORKSPACE</p>
@@ -150,6 +155,23 @@ export default function App() {
             {result && <span className="count">{result.finding_count}</span>}
           </div>
 
+            {result && (
+            <div className="severity-summary">
+              <div className="summary-card high-summary">
+                <span>High</span>
+                <strong>{highCount}</strong>
+              </div>
+              <div className="summary-card medium-summary">
+                <span>Medium</span>
+                <strong>{mediumCount}</strong>
+              </div>
+              <div className="summary-card total-summary">
+                <span>Total</span>
+                <strong>{result.finding_count}</strong>
+              </div>
+            </div>
+          )}
+          
           {error && <p className="message error">{error}</p>}
 
           {!result && !error && (
