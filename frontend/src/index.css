@@ -267,3 +267,20 @@ input[type="file"] {
     grid-template-columns: 1fr;
   }
 }
+
+.result-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.export-button {
+  padding: 0.55rem 0.7rem;
+  color: #b9c6d8;
+  background: #1b2d48;
+  font-size: 0.8rem;
+}
+
+.export-button:hover {
+  background: #294363;
+}

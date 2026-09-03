@@ -99,6 +99,31 @@ export default function App() {
 
   const mediumCount =
     result?.findings.filter((finding) => finding.severity === "medium").length ?? 0;
+
+    function downloadReport() {
+    if (!result) {
+      return;
+    }
+
+    const report = {
+      generatedAt: new Date().toISOString(),
+      source: fileName || "Pasted text",
+      findingCount: result.finding_count,
+      findings: result.findings,
+    };
+
+    const file = new Blob([JSON.stringify(report, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "securelens-report.json";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
   
     return (
     <main className="page-shell">
@@ -152,7 +177,18 @@ export default function App() {
               <p className="eyebrow">SCAN RESULTS</p>
               <h2>Findings</h2>
             </div>
-            {result && <span className="count">{result.finding_count}</span>}
+            {result && (
+                <div className="result-actions">
+                  <button
+                    className="export-button"
+                    type="button"
+                    onClick={downloadReport}
+                  >
+                Download report
+              </button>
+            <span className="count">{result.finding_count}</span>
+            </div>
+            )}
           </div>
 
             {result && (
@@ -171,7 +207,7 @@ export default function App() {
               </div>
             </div>
           )}
-          
+
           {error && <p className="message error">{error}</p>}
 
           {!result && !error && (
