@@ -9,6 +9,7 @@ htmlcov/
 #Secrets
 .env
 .env.*
+data/
 
 #Node / frontend
 node_modules/

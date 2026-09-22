@@ -1,242 +1,28 @@
 import { useState } from "react";
-import type React from "react";
+import type { ReactNode } from "react";
 import "./index.css";
 
-type Finding = {
-  rule_id: string;
-  severity: string;
-  title: string;
-  line: number;
-  evidence: string;
-  recommendation: string;
+type Finding = { rule_id: string; severity: string; title: string; line: number; recommendation: string };
+type Gap = { control_id: string; framework: string; title: string; rationale: string };
+type Source = { source_id: string; title: string; framework: string; excerpt: string };
+type Assessment = { assessment_id: string; project_name: string; phase: string; risk_level: string; analyst_brief: string; findings: Finding[]; compliance_gaps: Gap[]; next_actions: string[]; evidence_coverage: number; retrieved_context: Source[]; agent_trace: string[]; ai_review: { status: string; model: string; insight: string } };
+const phases = ["requirements", "design", "development", "testing", "deployment", "operations"];
+const scope: Record<string, [string, string, string]> = {
+  requirements: ["Security requirements review", "Missing security and privacy acceptance criteria.", "PRDs, user stories, questionnaires"], design: ["Architecture threat model", "Trust boundaries, attack paths, and design-control gaps.", "Diagrams, API specifications, data flows"], development: ["Secure implementation review", "Secrets, insecure defaults, and coding/configuration risks.", "Code, environment files, PR evidence"], testing: ["Security test triage", "Vulnerability evidence and remediation priority.", "SAST, DAST, and pen-test reports"], deployment: ["Release security gate", "Release hardening, TLS, secrets, and configuration readiness.", "Manifests, release checklists, infrastructure config"], operations: ["Operational resilience review", "Monitoring, incident response, and vulnerability ownership.", "Runbooks, logs, alerts, incident reports"],
 };
-
-type ScanResponse = {
-  finding_count: number;
-  findings: Finding[];
-};
-
-const SAMPLE_TEXT = `API_KEY = "demo-only-key"
-service_url = "http://example.com"
-verify=False`;
-
-const API_URL = "http://127.0.0.1:8010/api/scan";
+const sample = "System design: public admin portal.\nAPI_KEY = \"demo-only-key\"\nservice_url = \"http://example.com\"\nverify=False";
+const api = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8010/api";
 
 export default function App() {
-  const [content, setContent] = useState(SAMPLE_TEXT);
-  const [fileName, setFileName] = useState("");
-  const [result, setResult] = useState<ScanResponse | null>(null);
-  const [error, setError] = useState("");
-  const [isScanning, setIsScanning] = useState(false);
-  const [isReadingFile, setIsReadingFile] = useState(false);
-
-  async function handleFileChange(
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) {
-    const file = event.target.files?.[0];
-    setError("");
-    setResult(null);
-
-    if (!file) {
-      return;
-    }
-
-    if (!file.name.toLowerCase().endsWith(".txt")) {
-      setError("SecureLens currently supports plain-text (.txt) files only.");
-      event.target.value = "";
-      return;
-    }
-
-    setIsReadingFile(true);
-
-    try {
-      const fileContent = await file.text();
-      setContent(fileContent);
-      setFileName(file.name);
-    } catch {
-      setError("SecureLens could not read this file.");
-    } finally {
-      setIsReadingFile(false);
-    }
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-    setResult(null);
-
-    if (!content.trim()) {
-      setError("Paste some text or select a text file before starting a scan.");
-      return;
-    }
-
-    setIsScanning(true);
-
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
-      });
-
-      if (!response.ok) {
-        throw new Error("SecureLens could not complete the scan.");
-      }
-
-      setResult((await response.json()) as ScanResponse);
-    } catch (scanError) {
-      setError(
-        scanError instanceof Error
-          ? scanError.message
-          : "An unexpected error occurred.",
-      );
-    } finally {
-      setIsScanning(false);
-    }
-  }
-  const highCount =
-    result?.findings.filter((finding) => finding.severity === "high").length ?? 0;
-
-  const mediumCount =
-    result?.findings.filter((finding) => finding.severity === "medium").length ?? 0;
-
-    function downloadReport() {
-    if (!result) {
-      return;
-    }
-
-    const report = {
-      generatedAt: new Date().toISOString(),
-      source: fileName || "Pasted text",
-      findingCount: result.finding_count,
-      findings: result.findings,
-    };
-
-    const file = new Blob([JSON.stringify(report, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(file);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "securelens-report.json";
-    link.click();
-
-    URL.revokeObjectURL(url);
-  }
-  
-    return (
-    <main className="page-shell">
-      <section className="hero">
-        <p className="eyebrow">SECURITY REVIEW WORKSPACE</p>
-        <h1>SecureLens</h1>
-        <p className="subtitle">
-          Quickly inspect document and configuration text for common security
-          red flags.
-        </p>
-      </section>
-
-      <section className="workspace">
-        <form className="scan-form" onSubmit={handleSubmit}>
-          <label htmlFor="document-file">Upload a text file</label>
-          <input
-            id="document-file"
-            type="file"
-            accept=".txt,text/plain"
-            onChange={handleFileChange}
-          />
-
-          {fileName && (
-            <p className="selected-file">
-              Selected file: <strong>{fileName}</strong>
-            </p>
-          )}
-
-          <label htmlFor="document-content">Content to review</label>
-          <textarea
-            id="document-content"
-            value={content}
-            onChange={(event) => {
-              setContent(event.target.value);
-              setFileName("");
-            }}
-            placeholder="Paste a document, environment configuration, or code snippet..."
-          />
-          <button type="submit" disabled={isScanning || isReadingFile}>
-            {isReadingFile
-              ? "Reading file…"
-              : isScanning
-                ? "Scanning…"
-                : "Run security scan"}
-          </button>
-        </form>
-
-        <section className="results-panel" aria-live="polite">
-          <div className="results-heading">
-            <div>
-              <p className="eyebrow">SCAN RESULTS</p>
-              <h2>Findings</h2>
-            </div>
-            {result && (
-                <div className="result-actions">
-                  <button
-                    className="export-button"
-                    type="button"
-                    onClick={downloadReport}
-                  >
-                Download report
-              </button>
-            <span className="count">{result.finding_count}</span>
-            </div>
-            )}
-          </div>
-
-            {result && (
-            <div className="severity-summary">
-              <div className="summary-card high-summary">
-                <span>High</span>
-                <strong>{highCount}</strong>
-              </div>
-              <div className="summary-card medium-summary">
-                <span>Medium</span>
-                <strong>{mediumCount}</strong>
-              </div>
-              <div className="summary-card total-summary">
-                <span>Total</span>
-                <strong>{result.finding_count}</strong>
-              </div>
-            </div>
-          )}
-
-          {error && <p className="message error">{error}</p>}
-
-          {!result && !error && (
-            <p className="message">
-              Upload a text file or paste content, then run a scan.
-            </p>
-          )}
-
-          {result?.finding_count === 0 && (
-            <p className="message success">
-              No rules were triggered by this content.
-            </p>
-          )}
-
-          {result?.findings.map((finding) => (
-            <article className="finding" key={`${finding.rule_id}-${finding.line}`}>
-              <div className="finding-topline">
-                <span className={`severity ${finding.severity}`}>
-                  {finding.severity}
-                </span>
-                <span>Line {finding.line}</span>
-              </div>
-              <h3>{finding.title}</h3>
-              <code>{finding.evidence}</code>
-              <p>{finding.recommendation}</p>
-            </article>
-          ))}
-        </section>
-      </section>
-    </main>
-  );
+  const [project, setProject] = useState("Payments modernization"), [phase, setPhase] = useState("design"), [content, setContent] = useState(sample), [file, setFile] = useState<File | null>(null), [result, setResult] = useState<Assessment | null>(null), [loading, setLoading] = useState(false), [error, setError] = useState("");
+  const [title, focus, evidence] = scope[phase];
+  async function assess(event: React.FormEvent) { event.preventDefault(); setLoading(true); setError(""); setResult(null); try { let endpoint = "/assessments", body: BodyInit = JSON.stringify({ content, project_name: project, phase, frameworks: ["OWASP ASVS", "NIST SSDF"] }), headers: HeadersInit | undefined = { "Content-Type": "application/json" }; if (file) { const form = new FormData(); form.append("file", file); form.append("project_name", project); form.append("phase", phase); form.append("frameworks", "OWASP ASVS,NIST SSDF"); endpoint = "/assessments/upload"; body = form; headers = undefined; } const response = await fetch(`${api}${endpoint}`, { method: "POST", headers, body }); if (!response.ok) throw new Error((await response.json()).detail ?? "Assessment failed."); setResult(await response.json() as Assessment); } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not run assessment."); } finally { setLoading(false); } }
+  return <div className="app-shell"><aside className="sidebar"><div className="brand"><span>S</span>SecureLens</div><nav><a className="active">Command center</a><a>Assessments</a><a>Evidence vault</a><a>Control coverage</a><a>Threat register</a></nav><div className="side-note"><small>ASSESSMENT MODE</small><b>Human review required</b><p>AI drafts never approve a security gate.</p></div></aside><main><header><div><small>SSDLC SECURITY INTELLIGENCE</small><h1>Assessment workbench</h1><p>Evidence-led review for software delivery decisions.</p></div><span className="online">Platform online</span></header>
+    <div className="stages">{phases.map((item, index) => <button key={item} type="button" className={phase === item ? "selected" : ""} onClick={() => setPhase(item)}><b>0{index + 1}</b>{item}</button>)}</div>
+    <section className="grid"><form className="panel intake" onSubmit={assess}><div className="title"><div><small>NEW ASSESSMENT</small><h2>{title}</h2></div><i>{phase.toUpperCase()}</i></div><article className="brief"><small>PHASE SCOPE</small><p>{focus}</p><p>Best evidence: {evidence}</p></article><label>Project<input value={project} onChange={(event) => setProject(event.target.value)} /></label><label>Paste source evidence<textarea value={content} placeholder={evidence} onChange={(event) => { setContent(event.target.value); setFile(null); }} /></label><label>Or upload evidence (PDF, DOCX, XLSX, TXT)<input type="file" accept=".pdf,.docx,.xlsx,.txt,.md,.csv,.json" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></label><div className="overlays">Policy overlays <b>OWASP ASVS</b><b>NIST SSDF</b>{file && <b>{file.name}</b>}</div><button className="primary" disabled={loading}>{loading ? "Analyzing evidence..." : `Run ${phase} assessment ->`}</button>{error && <p className="error">{error}</p>}</form>
+    <section className="panel output"><div className="title"><div><small>ASSESSMENT OUTPUT {result ? `| ${result.phase.toUpperCase()}` : ""}</small><h2>{result?.project_name ?? title}</h2></div>{result && <i className={`risk ${result.risk_level}`}>{result.risk_level} risk</i>}</div>{!result ? <div className="empty"><strong>+</strong><h3>{title}</h3><p>{focus}</p></div> : <><div className="metrics"><Metric value={result.findings.filter((item) => item.severity === "high").length} label="High findings" /><Metric value={result.compliance_gaps.length} label="Control gaps" /><Metric value={`${result.evidence_coverage}%`} label="Evidence mapped" /></div><article className="brief"><small>ANALYST BRIEF</small><p>{result.analyst_brief}</p></article><article className="brief ai-brief"><small>LOCAL AI REVIEW | {result.ai_review.model} | {result.ai_review.status}</small><p>{result.ai_review.insight}</p></article><h3>Priority findings <span>{result.findings.length} signals</span></h3>{result.findings.slice(0, 3).map((item) => <article className="finding" key={`${item.rule_id}-${item.line}`}><b className={item.severity}>{item.severity}</b><strong>{item.title}</strong><p>Line {item.line} | {item.recommendation}</p></article>)}</>}</section></section>
+    {result && <section className="lower"><Card title="Control gaps" subtitle="Mapped to policy">{result.compliance_gaps.map((item) => <article className="row" key={item.control_id}><b>{item.control_id}</b><div><strong>{item.title}</strong><p>{item.framework} | {item.rationale}</p></div></article>)}</Card><Card title="Reviewer queue" subtitle="Human decision">{result.next_actions.map((item, index) => <article className="row" key={item}><b>0{index + 1}</b><p>{item}</p></article>)}</Card><Card title="RAG policy context" subtitle={`${result.retrieved_context.length} sources`}>{result.retrieved_context.map((item) => <article className="row" key={item.source_id}><b>{item.framework}</b><div><strong>{item.title}</strong><p>{item.excerpt}</p></div></article>)}</Card><Card title="Agent audit trail" subtitle="Draft only">{result.agent_trace.map((item, index) => <article className="row" key={item}><b>0{index + 1}</b><p>{item}</p></article>)}</Card></section>}
+  </main></div>;
 }
+function Metric({ value, label }: { value: string | number; label: string }) { return <div className="metric"><strong>{value}</strong><span>{label}</span></div>; }
+function Card({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) { return <section className="panel compact"><h3>{title}<span>{subtitle}</span></h3>{children}</section>; }
