@@ -1,32 +1,23 @@
-# React + TypeScript + Vite
+# SecureLens frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The SecureLens browser interface is built with React, TypeScript, and Vite. It lets a reviewer choose an SSDLC phase, paste evidence or upload a supported document, and inspect the resulting assessment draft.
 
-Currently, two official plugins are available:
+## Run the frontend
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Start the FastAPI backend by following the instructions in the [project README](../README.md), then run:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```powershell
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Vite normally serves the app at `http://localhost:5173`. The default API base is `http://127.0.0.1:8010/api`. To point it elsewhere, set `VITE_API_BASE_URL` to the API prefix before running `npm run dev`.
+
+## Available scripts
+
+- `npm run dev` — start the development server
+- `npm run build` — type-check and create a production build in `dist/`
+- `npm run lint` — run Oxlint
+- `npm run preview` — preview the production build locally
+
+See the main [SecureLens README](../README.md) for supported evidence formats, data handling, backend setup, and limitations.
