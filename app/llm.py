@@ -7,7 +7,7 @@ import httpx
 
 
 def _timeout() -> float:
-    return float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "5"))
+    return float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "30"))
 
 
 @dataclass(frozen=True)

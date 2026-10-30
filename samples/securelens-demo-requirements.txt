@@ -1,0 +1,20 @@
+SYNTHETIC DEMO EVIDENCE — NO REAL CUSTOMER OR CREDENTIAL DATA
+
+Artifact: Security requirements review
+Project: Merchant Admin Portal
+Phase: Requirements
+Scope: Public internet-facing admin application for merchant operators.
+Data assets: merchant identity records, payment tokens, administrative audit events.
+Trust boundary: browser to public API gateway to internal services.
+
+Security acceptance criteria under review:
+- Administrative actions require phishing-resistant MFA and server-side authorization.
+- Payment tokens are never written to application logs.
+- Audit records capture actor, action, target, timestamp, and outcome; access is restricted.
+- Production traffic uses TLS with certificate validation.
+- Cross-origin access is limited to approved first-party origins.
+- High-risk findings have an owner, remediation date, and documented approval before release.
+
+Prototype configuration attached to the draft requirements (intentional demo defects):
+DEBUG = True
+allow_origins = "*"

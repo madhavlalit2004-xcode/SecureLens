@@ -16,6 +16,8 @@ SecureLens is a local-first security review workbench for configuration text and
 
 The built-in knowledge base contains a small set of illustrative policy snippets. Control mappings and retrieved excerpts are not a complete implementation or certification of OWASP ASVS, NIST SSDF, or any other framework.
 
+For synthetic, copy-pasteable evidence packs and expected demo outputs for every SSDLC phase and sidebar view, see the [demo check and screenshot guide](samples/securelens-demo-guide.md).
+
 ## Requirements
 
 - Python 3.10 or newer
@@ -59,7 +61,14 @@ The API's CORS configuration currently allows the default local Vite origins. Up
 
 ## Optional local Ollama setup
 
-Copy `.env.example` to `.env` and adjust the model names if needed. The defaults use Ollama at `http://127.0.0.1:11434`, with `llama3.2` for the advisory review and `nomic-embed-text` for embeddings. Pull those models in Ollama before using them. If Ollama is unavailable, the app reports that status and continues without model-generated text or embeddings.
+Ollama must be running at `http://127.0.0.1:11434`, and the configured model names must match models shown by `ollama list`. The defaults in `.env.example` are `llama3.2` for advisory review and `nomic-embed-text` for embeddings. For example, if your installed chat model is `llama3.1:8b`, set it in the same PowerShell terminal before starting the API:
+
+```powershell
+$env:OLLAMA_MODEL = "llama3.1:8b"
+fastapi dev app/main.py --port 8010
+```
+
+The Ollama request timeout defaults to 30 seconds and can be changed with `OLLAMA_TIMEOUT_SECONDS`. If Ollama is unavailable, the app reports that status and continues without model-generated text or embeddings.
 
 ## Data handling
 
@@ -88,4 +97,32 @@ py -m pytest -q
 cd frontend
 npm run build
 ```
+
+## Screenshots
+
+These screenshots show SecureLens using synthetic development-phase evidence. All credential-like values are nonfunctional placeholders. Control mappings and threat signals are first-pass review aids and require human validation; they are not compliance certification or a complete security assessment.
+
+### Development assessment
+
+The assessment view shows the risk summary, local AI review, and prioritized findings for the synthetic Merchant Admin Portal scenario.
+
+![SecureLens development assessment results](docs/images/securelens-development-assessment.png)
+
+### Assessment details
+
+The lower assessment view shows mapped control gaps, reviewer actions, retrieved policy context, and the workflow trace.
+
+![SecureLens assessment details](docs/images/securelens-assessment-details.png)
+
+### Threat register
+
+Draft threat signals derived from the submitted synthetic evidence.
+
+![SecureLens threat register](docs/images/securelens-threat-register.png)
+
+### Control coverage
+
+Rule-based control mappings for this assessment. The displayed evidence-mapped percentage is an application demo metric, not a framework compliance score.
+
+![SecureLens control coverage](docs/images/securelens-control-coverage.png)
 

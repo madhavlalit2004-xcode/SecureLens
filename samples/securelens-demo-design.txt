@@ -1,0 +1,15 @@
+SYNTHETIC DEMO EVIDENCE — NO REAL CUSTOMER OR CREDENTIAL DATA
+
+Artifact: Architecture and data-flow review
+Project: Merchant Admin Portal
+Phase: Design
+Scope: Public internet-facing admin application for merchant operators.
+Assets: payment tokens, merchant identity records, privileged admin sessions.
+Actors: anonymous internet user, authenticated merchant operator, support administrator.
+Trust boundaries: browser/API gateway; API gateway/payment service; service/managed database.
+Abuse case: an attacker on the network path attempts to alter an admin request or steal a session.
+Required controls: TLS certificate validation, least privilege, step-up authentication for sensitive actions.
+
+Draft integration settings copied from the design proof of concept (intentional demo defects):
+payment_service_url = "http://payments.example.test/v1"
+verify=False

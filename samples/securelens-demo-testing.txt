@@ -1,0 +1,18 @@
+SYNTHETIC DEMO EVIDENCE — SANITIZED SECURITY TEST REPORT
+
+Artifact: Security verification report
+Project: Merchant Admin Portal
+Phase: Testing
+Scope: Public internet-facing admin application for merchant operators.
+Test cases: certificate validation, CORS policy, and secret leakage in build artifacts.
+
+Finding TST-014 — TLS certificate rejection was bypassed in the test client configuration.
+Client configuration excerpt (intentional demo defect): verify=False
+
+Finding TST-021 — The test response accepted an untrusted browser origin.
+Observed response header (intentional demo defect): Access-Control-Allow-Origin: *
+
+Finding TST-033 — A credential-like value was committed to the test fixture (fake value only).
+token = "DEMO-ONLY-REDACTED-FIXTURE"
+
+Expected validation: reproduce each issue, record request/response evidence, link a remediation, and add a regression check before closure.

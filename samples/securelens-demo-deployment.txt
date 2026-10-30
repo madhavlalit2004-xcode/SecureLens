@@ -1,0 +1,14 @@
+SYNTHETIC DEMO EVIDENCE — NO REAL CUSTOMER OR CREDENTIAL DATA
+
+Artifact: Production release configuration review
+Project: Merchant Admin Portal
+Phase: Deployment
+Scope: Public internet-facing admin application for merchant operators.
+Release gate: approve only after production secrets are injected from the secret store and verified TLS is enabled.
+
+# Intentional demo defects from the proposed release manifest:
+service_url = "http://merchant-api.example.test"
+DEBUG = True
+allow_origins = "*"
+
+Required release evidence: immutable artifact digest, approved deployment identity, rollback plan, and completed security sign-off.

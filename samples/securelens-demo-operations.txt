@@ -1,0 +1,13 @@
+SYNTHETIC DEMO EVIDENCE — ALL VALUES ARE NONFUNCTIONAL PLACEHOLDERS
+
+Artifact: Operations incident and runbook review
+Project: Merchant Admin Portal
+Phase: Operations
+Scope: Public internet-facing admin application for merchant operators.
+Scenario: monitoring detected a credential-like value in a diagnostic event and an unencrypted upstream URL in a service record.
+
+# Intentional demo defects; this fake value cannot authenticate anywhere.
+token = "DEMO-ONLY-REVOKED-PLACEHOLDER"
+legacy_service_url = "http://merchant-api.example.test"
+
+Runbook checks: revoke and rotate any confirmed exposed credential; preserve restricted incident evidence; identify affected identities and requests; validate the TLS path; assign an owner and verify closure with a regression test.
