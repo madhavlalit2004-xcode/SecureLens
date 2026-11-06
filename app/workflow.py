@@ -31,7 +31,10 @@ def detect_security_findings(content: str) -> list[dict[str, object]]:
 
 def scan_document_node(state: ReviewState) -> dict[str, list[dict[str, object]]]:
     findings, context = evidence_agent(state["content"], state["frameworks"])
-    sources = [{"source_id": item.source_id, "title": item.title, "framework": item.framework, "excerpt": item.excerpt} for item in context]
+    sources = [{"source_id": item.source_id, "title": item.title, "framework": item.framework, "excerpt": item.excerpt,
+                **({"version": item.version} if item.version else {}),
+                **({"control_id": item.control_id} if item.control_id else {}),
+                **({"source_url": item.source_url} if item.source_url else {})} for item in context]
     return {"findings": [item.model_dump() for item in findings], "retrieved_context": sources, "agent_trace": ["Evidence Agent: extracted signals and retrieved policy context"]}
 
 

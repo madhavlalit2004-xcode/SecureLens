@@ -29,7 +29,10 @@ def policy_agent(findings: list[Finding], frameworks: list[str]) -> list[dict[st
 def evidence_critic_agent(findings: list[Finding], context: list[RetrievedContext]) -> tuple[list[dict[str, str]], int]:
     """Check that every finding has direct submitted evidence and report coverage."""
     citations = [
-        {"source_id": item.source_id, "title": item.title, "framework": item.framework, "excerpt": item.excerpt}
+        {"source_id": item.source_id, "title": item.title, "framework": item.framework, "excerpt": item.excerpt,
+         **({"version": item.version} if item.version else {}),
+         **({"control_id": item.control_id} if item.control_id else {}),
+         **({"source_url": item.source_url} if item.source_url else {})}
         for item in context
     ]
     # Scanner findings always contain a line and exact matched evidence. Retrieval

@@ -7,7 +7,7 @@ type PageId = "command-center" | "assessments" | "evidence-vault" | "control-cov
 type Finding = { rule_id: string; severity: string; title: string; line: number; recommendation: string };
 type Gap = { control_id: string; framework: string; title: string; rationale: string };
 type ThreatSignal = { category: string; title: string; likelihood: string; impact: string; evidence: string };
-type Source = { source_id: string; title: string; framework: string; excerpt: string };
+type Source = { source_id: string; title: string; framework: string; excerpt: string; version?: string; control_id?: string; source_url?: string };
 type Assessment = {
   assessment_id: string;
   project_name: string;
@@ -167,7 +167,7 @@ function AssessmentDetails({ result }: { result: Assessment }) {
   return <section className="lower">
     <Card title="Control gaps" subtitle="Mapped to policy">{result.compliance_gaps.map((item) => <article className="row" key={item.control_id}><b>{item.control_id}</b><div><strong>{item.title}</strong><p>{item.framework} | {item.rationale}</p></div></article>)}</Card>
     <Card title="Reviewer queue" subtitle="Human decision">{result.next_actions.map((item, index) => <article className="row" key={item}><b>0{index + 1}</b><p>{item}</p></article>)}</Card>
-    <Card title="RAG policy context" subtitle={`${result.retrieved_context.length} sources`}>{result.retrieved_context.map((item) => <article className="row" key={item.source_id}><b>{item.framework}</b><div><strong>{item.title}</strong><p>{item.excerpt}</p></div></article>)}</Card>
+    <Card title="RAG policy context" subtitle={`${result.retrieved_context.length} sources`}>{result.retrieved_context.map((item) => <article className="row" key={item.source_id}><b>{item.framework}{item.version ? ` ${item.version}` : ""}{item.control_id ? ` · ${item.control_id}` : ""}</b><div><strong>{item.title}</strong><p>{item.excerpt}</p>{item.source_url && <a href={item.source_url} target="_blank" rel="noreferrer">Open official source</a>}</div></article>)}</Card>
     <Card title="Agent audit trail" subtitle="Draft only">{result.agent_trace.map((item, index) => <article className="row" key={item}><b>0{index + 1}</b><p>{item}</p></article>)}</Card>
   </section>;
 }
